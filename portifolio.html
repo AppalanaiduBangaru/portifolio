@@ -236,6 +236,80 @@
             font-size: 1.2rem;
         }
 
+        /* Bookmark Navigation */
+        .bookmark-nav {
+            position: fixed;
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .bookmark-item {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(var(--color-cool-gray-rgb), 0.3);
+            border: 2px solid var(--color-primary);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .bookmark-item:hover {
+            background: var(--color-primary);
+            transform: scale(1.5);
+        }
+
+        .bookmark-item.active {
+            background: var(--color-primary);
+            transform: scale(1.3);
+            box-shadow: 0 0 12px rgba(var(--color-neon-cyan-rgb), 0.6);
+        }
+
+        .bookmark-item::before {
+            content: attr(data-label);
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--color-surface);
+            color: var(--color-text);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            border: 1px solid var(--color-card-border);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .bookmark-item:hover::before {
+            opacity: 1;
+            transform: translateY(-50%) translateX(-5px);
+        }
+
+        @media (max-width: 768px) {
+            .bookmark-nav {
+                right: 15px;
+                gap: 12px;
+            }
+
+            .bookmark-item {
+                width: 10px;
+                height: 10px;
+            }
+
+            .bookmark-item::before {
+                display: none;
+            }
+        }
+
         .scroll-indicator {
             position: absolute;
             bottom: 30px;
@@ -581,14 +655,24 @@
         </div>
     </section>
 
-    <section class="section">
+    <!-- Bookmark Navigation -->
+    <nav class="bookmark-nav">
+        <div class="bookmark-item" data-label="About" data-section="about"></div>
+        <div class="bookmark-item" data-label="Project" data-section="project"></div>
+        <div class="bookmark-item" data-label="Skills" data-section="skills"></div>
+        <div class="bookmark-item" data-label="Soft Skills" data-section="soft-skills"></div>
+        <div class="bookmark-item" data-label="Certifications" data-section="certifications"></div>
+        <div class="bookmark-item" data-label="Education" data-section="education"></div>
+    </nav>
+
+    <section class="section" id="about">
         <h2 class="section-title">About Me</h2>
         <div class="card">
             <p>To begin my career in a dynamic organization where I can apply problem-solving skills, adaptability, and a collaborative mindset to deliver effective solutions. I aim to learn quickly, incorporate industry best practices, and contribute to improving efficiency, reliability, and performance in every task I undertake, while continuously growing with the organization.</p>
         </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="project">
         <h2 class="section-title">Featured Project</h2>
         <div class="project-card">
             <h3>Todos Application</h3>
@@ -616,7 +700,7 @@
         </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="skills">
         <h2 class="section-title">Technical Skills</h2>
         <div class="skills-grid">
             <div class="skill-category">
@@ -651,7 +735,7 @@
         </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="soft-skills">
         <h2 class="section-title">Soft Skills</h2>
         <div class="grid">
             <div class="card">
@@ -685,7 +769,7 @@
         </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="certifications">
         <h2 class="section-title">Certifications</h2>
         <div class="grid">
             <div class="card">
@@ -733,7 +817,7 @@
         </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="education">
         <h2 class="section-title">Education</h2>
         <div class="timeline">
             <div class="timeline-item">
@@ -817,6 +901,48 @@
         timelineItems.forEach((item, index) => {
             item.style.transitionDelay = `${index * 0.2}s`;
         });
+
+        // Bookmark Navigation
+        const bookmarkItems = document.querySelectorAll('.bookmark-item');
+        const sections = document.querySelectorAll('.section[id]');
+
+        // Click handler for bookmarks
+        bookmarkItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const sectionId = item.getAttribute('data-section');
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Update active bookmark on scroll
+        const updateActiveBookmark = () => {
+            let currentSection = '';
+            const scrollPosition = window.scrollY + window.innerHeight / 3;
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+
+            bookmarkItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-section') === currentSection) {
+                    item.classList.add('active');
+                }
+            });
+        };
+
+        window.addEventListener('scroll', updateActiveBookmark);
+        updateActiveBookmark(); // Initial check
     </script>
 </body>
 </html>
